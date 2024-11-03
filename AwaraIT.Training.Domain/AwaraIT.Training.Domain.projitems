@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>c65a5fb7-2087-4f8c-8a1d-ab831456e077</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>AwaraIT.Training.Domain</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Constants.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\CollectionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\EntityExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\StringExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\ActionCommon.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\BaseActionEntity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\BaseEntity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\Entities\Contact.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\EntityCommon.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\Entities\EnvironmentVariableDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\Entities\EnvironmentVariableValue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\Entities\Log.cs" />
+  </ItemGroup>
+</Project>

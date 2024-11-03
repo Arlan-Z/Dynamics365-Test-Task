@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>6735b7d9-8820-4175-8c99-074ba0276a43</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>AwaraIT.Training.Infrastucture</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Common\BaseClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Common\HttpResultWrapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sources\Crm\Clients\ContactClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sources\Crm\Clients\EnvironmentVariableDefinitionClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sources\Crm\Clients\LogClient.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sources\Crm\CrmBaseClient.cs" />
+  </ItemGroup>
+</Project>
