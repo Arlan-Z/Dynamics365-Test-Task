@@ -14,6 +14,7 @@ namespace AwaraIT.Training.ConsoleApp.Actions
                     var whoAmIRequest = new WhoAmIRequest();
                     var currentUser = (WhoAmIResponse)client.Execute(whoAmIRequest);
                     Console.WriteLine($"UserId: {currentUser.UserId}");
+                    Console.WriteLine($"Date Now: {DateTime.UtcNow}");
                 }
             }
             catch (Exception ex)
