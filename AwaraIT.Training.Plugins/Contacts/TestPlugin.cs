@@ -15,7 +15,7 @@ namespace AwaraIT.Training.Plugins.Contacts
             Subscribe
                 .ToMessage(CrmMessage.Update)                
                 .ForEntity(Contact.EntityLogicalName)
-                .WithAnyField(Contact.Metadata.MobilePhone)
+                .WithAnyField(Contact.Metadata.PhoneNumber)
                 .When(PluginStage.PreOperation)
                 .Execute(Execute);
         }
@@ -27,7 +27,7 @@ namespace AwaraIT.Training.Plugins.Contacts
             try
             {
                 var contact = wrapper.TargetEntity.ToEntity<Contact>();
-                contact.MobilePhone = contact.MobilePhone?.OnlyDigits();
+                //contact.MobilePhone = contact.MobilePhone?.OnlyDigits();
             }
             catch (Exception ex)
             {

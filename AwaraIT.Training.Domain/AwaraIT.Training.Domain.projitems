@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\BaseActionEntity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\BaseEntity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\Entities\Contact.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)models\crm\entities\Interest.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\EntityCommon.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\Entities\EnvironmentVariableDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\Crm\Entities\EnvironmentVariableValue.cs" />

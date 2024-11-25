@@ -1,12 +1,14 @@
-п»їusing Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
+using System.ComponentModel;
+using static AwaraIT.Training.Domain.Models.Crm.Entities.Interest.Metadata;
 
 namespace AwaraIT.Training.Domain.Models.Crm.Entities
 {
     [EntityLogicalName(EntityLogicalName)]
-    public class Contact : BaseEntity
+    public class Interest : BaseEntity
     {
-        public Contact() : base(EntityLogicalName) { }
+        public Interest() : base(EntityLogicalName) { }
 
         public static class Metadata
         {
@@ -16,10 +18,26 @@ namespace AwaraIT.Training.Domain.Models.Crm.Entities
             public const string PhoneNumber = "arl_phonenumber";
             public const string Email = "arl_email";
             public const string RegionId = "arl_regionid";
+            public const string ContactId = "arl_contactid";
+            public const string Status = "arl_status";
 
+            public enum InterestStatusOptions
+            {
+                [Description("Новый")]
+                Новый = 0,
+
+                [Description("В работе")]
+                В_работе = 1,
+
+                [Description("Согласие")]
+                Согласие = 2,
+
+                [Description("Отказ")]
+                Отказ = 3,
+            }
         }
 
-        public const string EntityLogicalName = "arl_contact";
+        public const string EntityLogicalName = "arl_interest";
 
         public string MiddleName
         {
@@ -55,6 +73,18 @@ namespace AwaraIT.Training.Domain.Models.Crm.Entities
         {
             get { return GetAttributeValue<EntityReference>(Metadata.RegionId); }
             set { Attributes[Metadata.RegionId] = value; }
+        }
+
+        public EntityReference ContactId
+        {
+            get { return GetAttributeValue<EntityReference>(Metadata.ContactId); }
+            set { Attributes[Metadata.ContactId] = value; }
+        }
+
+        public InterestStatusOptions? Status
+        {
+            get { return (InterestStatusOptions?)GetAttributeValue<OptionSetValue>(Metadata.Status)?.Value; }
+            set { Attributes[Metadata.ContactId] = value; }
         }
     }
 }
