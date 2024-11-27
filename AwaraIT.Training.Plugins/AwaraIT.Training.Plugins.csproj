@@ -128,6 +128,7 @@
   <ItemGroup>
     <Compile Include="Contacts\TestAction.cs" />
     <Compile Include="Contacts\TestPlugin.cs" />
+    <Compile Include="PossibleDeal\DealCreatePlugin.cs" />
     <Compile Include="PluginExtensions\Attributes\Argument.cs" />
     <Compile Include="PluginExtensions\Attributes\AssertionConditionAttribute.cs" />
     <Compile Include="PluginExtensions\Attributes\AssertionMethodAttribute.cs" />

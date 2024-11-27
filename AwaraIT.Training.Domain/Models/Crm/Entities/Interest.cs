@@ -84,7 +84,7 @@ namespace AwaraIT.Training.Domain.Models.Crm.Entities
         public InterestStatusOptions? Status
         {
             get { return (InterestStatusOptions?)GetAttributeValue<OptionSetValue>(Metadata.Status)?.Value; }
-            set { Attributes[Metadata.ContactId] = value; }
+            set { Attributes[Metadata.ContactId] = value != null ? new OptionSetValue((int)value.Value) : new OptionSetValue((int)InterestStatusOptions.Согласие); }
         }
     }
 }

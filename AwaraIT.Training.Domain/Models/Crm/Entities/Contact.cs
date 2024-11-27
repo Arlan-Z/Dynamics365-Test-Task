@@ -16,7 +16,6 @@ namespace AwaraIT.Training.Domain.Models.Crm.Entities
             public const string PhoneNumber = "arl_phonenumber";
             public const string Email = "arl_email";
             public const string RegionId = "arl_regionid";
-
         }
 
         public const string EntityLogicalName = "arl_contact";
