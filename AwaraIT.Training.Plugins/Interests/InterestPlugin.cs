@@ -81,7 +81,7 @@ namespace AwaraIT.Training.Plugins.Interests
 
         private void SetOwner()
         {
-            var query_arl_regiondata_team_arl_regiondataid = interest.RegionId.Id;
+            var query_arl_regiondata_team_arl_regiondata = interest.RegionId.Id;
             var query_businessunitid = new Guid("becaf010-bba8-ef11-8a6a-000d3a5c09a6");
 
             var teamQuery = new QueryExpression("team")
@@ -92,7 +92,7 @@ namespace AwaraIT.Training.Plugins.Interests
             teamQuery.Criteria.AddCondition("businessunitid", ConditionOperator.Equal, query_businessunitid);
 
             var regionDataLink = teamQuery.AddLink("arl_regiondata_team", "teamid", "teamid", JoinOperator.Inner);
-            regionDataLink.LinkCriteria.AddCondition("arl_regiondataid", ConditionOperator.Equal, query_arl_regiondata_team_arl_regiondataid);
+            regionDataLink.LinkCriteria.AddCondition("arl_regiondataid", ConditionOperator.Equal, query_arl_regiondata_team_arl_regiondata);
 
             var teamRes = wrapper.Service.RetrieveMultiple(teamQuery);
             if (teamRes.Entities.Count > 0)

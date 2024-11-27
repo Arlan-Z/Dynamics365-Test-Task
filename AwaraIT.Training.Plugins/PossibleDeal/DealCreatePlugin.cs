@@ -33,11 +33,11 @@ namespace AwaraIT.Arlan.Plugins.PossibleDeal
                 {
                     return;
                 }
-                logger.INFO("Entity Found");
+
                 if (interestEntity == null) throw new Exception("Interest Entity is NULL");
 
                 var interestPre = wrapper.PreImage.ToEntity<Interest>();
-                logger.INFO("Entity Pre Image Found");
+
                 if (interestPre == null) throw new Exception("Interest Pre Image is NULL");
 
                 var newDeal = new Entity(Deal.EntityLogicalName)
