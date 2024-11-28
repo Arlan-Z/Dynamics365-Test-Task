@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
+using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using static AwaraIT.Training.Domain.Models.Crm.Entities.Deal.Metadata;
 
 namespace AwaraIT.Training.Domain.Models.Crm.Entities
@@ -17,9 +19,9 @@ namespace AwaraIT.Training.Domain.Models.Crm.Entities
             public const string ContactId = "arl_contactid";
             public const string ShoppingCartId = "arl_shoppingcardid";
             public const string Status = "arl_status";
-            public const string Discount = "arl_totalDiscount";
-            public const string Price = "arl_basePrice";
-            public const string TotalPrice = "arl_totalPrice";
+            public const string Discount = "arl_totaldiscount";
+            public const string Price = "arl_baseprice";
+            public const string TotalPrice = "arl_totalprice";
 
             public enum DealStatusOptions
             {
@@ -58,22 +60,22 @@ namespace AwaraIT.Training.Domain.Models.Crm.Entities
             set { Attributes[Metadata.ContactId] = value != null ? new OptionSetValue((int)value.Value) : new OptionSetValue((int)DealStatusOptions.Новый); }
         }
 
-        public string Discount
+        public Decimal Discount
         {
-            get { return GetAttributeValue<string>(Metadata.Discount); }
+            get { return GetAttributeValue<Decimal>(Metadata.Discount); }
             set { Attributes[Metadata.Discount] = value; }
         }
 
-        public string Price
+        public Double Price
         {
-            get { return GetAttributeValue<string>(Metadata.Discount); }
-            set { Attributes[Metadata.Discount] = value; }
+            get { return GetAttributeValue<Double>(Metadata.Price); }
+            set { Attributes[Metadata.Price] = value; }
         }
 
-        public string TotalPrice
+        public Double TotalPrice
         {
-            get { return GetAttributeValue<string>(Metadata.Discount); }
-            set { Attributes[Metadata.Discount] = value; }
+            get { return GetAttributeValue<Double>(Metadata.TotalPrice); }
+            set { Attributes[Metadata.TotalPrice] = value; }
         }
     }
 
