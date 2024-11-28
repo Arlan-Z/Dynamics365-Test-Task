@@ -1,9 +1,6 @@
 ﻿using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Text;
 using static AwaraIT.Training.Domain.Models.Crm.Entities.Deal.Metadata;
 
 namespace AwaraIT.Training.Domain.Models.Crm.Entities
@@ -12,7 +9,6 @@ namespace AwaraIT.Training.Domain.Models.Crm.Entities
     public class Deal : BaseEntity
     {
         public Deal() : base(EntityLogicalName) { }
-
         public const string EntityLogicalName = "arl_possibledeal";
 
         public static class Metadata
