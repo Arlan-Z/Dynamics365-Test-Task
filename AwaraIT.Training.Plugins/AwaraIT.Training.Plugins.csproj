@@ -126,8 +126,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Contacts\TestAction.cs" />
-    <Compile Include="Contacts\TestPlugin.cs" />
     <Compile Include="PossibleDeal\AssignUserPlugin.cs" />
     <Compile Include="PossibleDeal\DealCreatePlugin.cs" />
     <Compile Include="PluginExtensions\Attributes\Argument.cs" />
@@ -151,7 +149,6 @@
     <Compile Include="PluginExtensions\Interfaces\IPluginSubscriptionBuilder.cs" />
     <Compile Include="PluginExtensions\PluginBase.cs" />
     <Compile Include="Interests\InterestPlugin.cs" />
-    <Compile Include="Pricelist\PricelistPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\TeamsService.cs" />
     <Compile Include="Shopping Cart\OnCartCreatePlugin.cs" />

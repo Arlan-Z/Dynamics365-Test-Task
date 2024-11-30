@@ -44,3 +44,49 @@ function callActionOnFieldChange(executionContext) {
         console.log(error.message);
     });
 }
+
+var isManualSaveInProgress = false; 
+
+async function onPriceListSave(executionContext) {
+    var formContext = executionContext.getFormContext();
+    var eventArgs = executionContext.getEventArgs();
+
+    if (isManualSaveInProgress) {
+        return;
+    }
+
+    eventArgs.preventDefault();
+
+    try {
+        var currentRecordId = formContext.data.entity.getId();
+        if (currentRecordId) {
+            currentRecordId = currentRecordId.replace("{", "").replace("}", "").toLowerCase();
+        }
+
+        var results = await Xrm.WebApi.retrieveMultipleRecords(
+            "arl_pricelist",
+            "?$select=arl_pricelistid&$top=1"
+        );
+
+        if (results.entities.length > 0) {
+            var existingRecordId = results.entities[0]["arl_pricelistid"].toLowerCase();
+
+            if (!currentRecordId || currentRecordId !== existingRecordId) {
+                var alertStrings = {
+                    confirmButtonLabel: "Ок",
+                    title: "Сохранение невозможно",
+                    text: "Объект Прайс-листа уже есть в системе",
+                };
+                var alertOptions = { height: 120, width: 260 };
+
+                await Xrm.Navigation.openAlertDialog(alertStrings, alertOptions);
+                return; 
+            }
+        }
+
+        isManualSaveInProgress = true; 
+        formContext.data.entity.save(); 
+    } catch (error) {
+        console.log("Ошибка при запросе:", error.message);
+    }
+}
