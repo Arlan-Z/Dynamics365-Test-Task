@@ -151,6 +151,7 @@
     <Compile Include="PluginExtensions\Interfaces\IPluginSubscriptionBuilder.cs" />
     <Compile Include="PluginExtensions\PluginBase.cs" />
     <Compile Include="Interests\InterestPlugin.cs" />
+    <Compile Include="Pricelist\PricelistPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\TeamsService.cs" />
     <Compile Include="Shopping Cart\OnCartCreatePlugin.cs" />
