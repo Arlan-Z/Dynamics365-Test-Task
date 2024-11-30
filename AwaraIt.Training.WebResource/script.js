@@ -45,15 +45,15 @@ function callActionOnFieldChange(executionContext) {
     });
 }
 
-var isManualSaveInProgress = false; 
+var isManualSaveInProgress = false; // to avoid recursion
 
 async function onPriceListSave(executionContext) {
-    var formContext = executionContext.getFormContext();
-    var eventArgs = executionContext.getEventArgs();
-
     if (isManualSaveInProgress) {
         return;
     }
+
+    var formContext = executionContext.getFormContext();
+    var eventArgs = executionContext.getEventArgs();
 
     eventArgs.preventDefault();
 
@@ -87,6 +87,52 @@ async function onPriceListSave(executionContext) {
         isManualSaveInProgress = true; 
         formContext.data.entity.save(); 
     } catch (error) {
-        console.log("Ошибка при запросе:", error.message);
+        console.log("Error", error.message);
+    }
+}
+
+async function onPricePositionSave(executionContext) {
+    if (isManualSaveInProgress) {
+        return;
+    }
+
+    var formContext = executionContext.getFormContext();
+    var eventArgs = executionContext.getEventArgs();
+
+    eventArgs.preventDefault();
+
+    try {
+        var regionId = formContext.getAttribute("arl_regiondataid").getValue()[0].id;
+        var prepFormatId = formContext.getAttribute("arl_prepformatid").getValue()[0].id;
+        var educformatid = formContext.getAttribute("arl_educformatid").getValue()[0].id;
+        var subjectId = formContext.getAttribute("arl_subject").getValue()[0].id;
+    
+        var results = await Xrm.WebApi.retrieveMultipleRecords("arl_pricelistitems", `?$select=arl_pricelistitemsid&$filter=(_arl_prepformatid_value eq ${prepFormatId} 
+            and _arl_educformatid_value eq ${educformatid}
+            and _arl_regiondataid_value eq ${regionId}
+            and _arl_subject_value eq ${subjectId})`)
+    
+            var currentRecordId = formContext.data.entity.getId().replace("{", "").replace("}", "").toLowerCase();
+    
+            if (results.entities.length > 0) {
+                var existingRecordId = results.entities[0]["arl_pricelistitemsid"].toLowerCase();
+    
+                if (!currentRecordId || currentRecordId !== existingRecordId) {
+                    var alertStrings = {
+                        confirmButtonLabel: "Ок",
+                        title: "Сохранение невозможно",
+                        text: "Данная Позиция Прайс-листа уже есть в системе",
+                    };
+                    var alertOptions = { height: 120, width: 260 };
+    
+                    await Xrm.Navigation.openAlertDialog(alertStrings, alertOptions);
+                    return; 
+                }
+            }
+    
+            isManualSaveInProgress = true; 
+            formContext.data.entity.save(); 
+    } catch (e){
+        console.log("Error", error.message);
     }
 }
