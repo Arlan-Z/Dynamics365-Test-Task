@@ -54,7 +54,7 @@ namespace AwaraIT.Arlan.Plugins.Shopping_Cart
 
                 var deal = service.Retrieve(possibleDeal.LogicalName, possibleDeal.Id, new ColumnSet(Deal.Metadata.RegionId)).ToEntity<Deal>();
                 var product = service.Retrieve(productId.LogicalName, productId.Id, new ColumnSet(Product.Metadata.EduFormat, Product.Metadata.Subject, Product.Metadata.PrepFormat)).ToEntity<Product>();
-                GetPrice(product, service, context);
+                GetPrice(product, deal,service, context);
             }
             catch (Exception ex)
             {
@@ -62,12 +62,13 @@ namespace AwaraIT.Arlan.Plugins.Shopping_Cart
             }
         }
 
-        private void GetPrice(Product product, IOrganizationService service, CodeActivityContext context)
+        private void GetPrice(Product product, Deal deal ,IOrganizationService service, CodeActivityContext context)
         {
             // Set Condition Values
             var query_arl_educformatid = product.EduFormat?.Id ?? throw new Exception("EduFormat is null.");
             var query_arl_prepformatid = product.PrepFormat?.Id ?? throw new Exception("PrepFormat is null.");
             var query_arl_subject = product.Subject?.Id ?? throw new Exception("Subject is null.");
+            var query_arl_regionId = deal.RegionId?.Id ?? throw new Exception("Subject is null.");
 
             // Instantiate QueryExpression query
             var query = new QueryExpression("arl_pricelistitems")
@@ -79,6 +80,7 @@ namespace AwaraIT.Arlan.Plugins.Shopping_Cart
             query.Criteria.AddCondition("arl_educformatid", ConditionOperator.Equal, query_arl_educformatid);
             query.Criteria.AddCondition("arl_prepformatid", ConditionOperator.Equal, query_arl_prepformatid);
             query.Criteria.AddCondition("arl_subject", ConditionOperator.Equal, query_arl_subject);
+            query.Criteria.AddCondition("arl_regiondataid", ConditionOperator.Equal, query_arl_regionId);
 
             var res = service.RetrieveMultiple(query);
             if (res.Entities.Count == 0)
