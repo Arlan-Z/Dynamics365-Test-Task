@@ -8,6 +8,7 @@ using Microsoft.Xrm.Sdk;
 using System;
 using System.Linq;
 using static AwaraIT.Training.Domain.Models.Crm.Entities.Interest.Metadata;
+using AwaraIT.Arlan.Plugins.Services;
 
 namespace AwaraIT.Training.Plugins.Interests
 {
@@ -33,7 +34,7 @@ namespace AwaraIT.Training.Plugins.Interests
             try
             {
                 this.interest = wrapper.TargetEntity.ToEntity<Interest>();
-                interest.ContactId = new EntityReference(Contact.EntityLogicalName, FindContact());
+                interest.ContactId = new EntityReference(Contact.EntityLogicalName, FindContactId());
                 SetOwner();
             }
             catch (Exception ex)
@@ -47,7 +48,7 @@ namespace AwaraIT.Training.Plugins.Interests
             }
         }
 
-        private Guid FindContact()
+        private Guid FindContactId()
         {
             var query = new QueryExpression(Contact.EntityLogicalName)
             {
@@ -81,62 +82,77 @@ namespace AwaraIT.Training.Plugins.Interests
 
         private void SetOwner()
         {
-            var query_arl_regiondata_team_arl_regiondata = interest.RegionId.Id;
-            var query_businessunitid = new Guid("becaf010-bba8-ef11-8a6a-000d3a5c09a6");
+            var teamsRes = TeamsService.FindTeamsIdByRegionId("Call-Centre", interest.RegionId.Id, wrapper);
+            Entity leastLoadedUser = null;
+            int minWorkload = int.MaxValue;
 
-            var teamQuery = new QueryExpression("team")
+            foreach (var team in teamsRes.Entities)
             {
-                ColumnSet = new ColumnSet(true) 
-            };
+                var teamId = team.Id;
 
-            teamQuery.Criteria.AddCondition("businessunitid", ConditionOperator.Equal, query_businessunitid);
+                var interestQuery = new QueryExpression("arl_interest")
+                {
+                    ColumnSet = new ColumnSet("arl_status", "ownerid"),
+                    Criteria = new FilterExpression
+                    {
+                        Filters =
+                        {
+                            new FilterExpression
+                            {
+                                Conditions =
+                                {
+                                    new ConditionExpression("arl_status", ConditionOperator.Equal, (int)InterestStatusOptions.В_работе)
+                                }
+                            },
+                            new FilterExpression
+                            {
+                                Conditions =
+                                {
+                                    new ConditionExpression("teammembership", "teamid", ConditionOperator.Equal, teamId)
+                                }
+                            }
+                        }
+                    }
+                };
 
-            var regionDataLink = teamQuery.AddLink("arl_regiondata_team", "teamid", "teamid", JoinOperator.Inner);
-            regionDataLink.LinkCriteria.AddCondition("arl_regiondataid", ConditionOperator.Equal, query_arl_regiondata_team_arl_regiondata);
+                interestQuery.AddLink("teammembership", "ownerid", "systemuserid");
 
-            var teamRes = wrapper.Service.RetrieveMultiple(teamQuery);
-            if (teamRes.Entities.Count > 0)
-            {
-                var teamId = teamRes.Entities.First().Id;
-                var userQuery = new QueryExpression("systemuser");
+                var interestRes = wrapper.Service.RetrieveMultiple(interestQuery);
 
-                userQuery.ColumnSet.AllColumns = true;
-                userQuery.Criteria.AddCondition("teammembership", "teamid", ConditionOperator.Equal, teamId);
-                userQuery.AddLink("teammembership", "systemuserid", "systemuserid");
-                //userQuery.Criteria.AddCondition("systemuserid", ConditionOperator.NotNull, null);
+                var workloadByUser = interestRes.Entities
+                    .GroupBy(i => i.GetAttributeValue<EntityReference>("ownerid").Id)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Count()
+                    );
 
-                //var userLink = userQuery.AddLink("teammembership", "systemuserid", "systemuserid", JoinOperator.Inner);
-                //userLink.LinkCriteria.AddCondition("teamid", ConditionOperator.Equal, teamId);
+                var userQuery = new QueryExpression("systemuser")
+                {
+                    ColumnSet = new ColumnSet("systemuserid")
+                };
 
-                //var interestLink = userQuery.AddLink("arl_interest", "systemuserid", "ownerid", JoinOperator.Inner);
-                //interestLink.LinkCriteria.AddCondition("statuscode", ConditionOperator.Equal, 1);
+                var teamLink = userQuery.AddLink("teammembership", "systemuserid", "systemuserid");
+                teamLink.LinkCriteria.AddCondition("teamid", ConditionOperator.Equal, teamId);
 
                 var userRes = wrapper.Service.RetrieveMultiple(userQuery);
 
                 if (userRes.Entities.Count == 0)
                 {
-                    throw new Exception($"No User Found, TeamId:{teamId}");
+                    throw new Exception($"No User Found in Team: {teamId}");
                 }
 
-                Entity leastLoadedUser = userRes.Entities.First();
-                int minWorkload = int.MaxValue;
-
-                foreach (Entity user in userRes.Entities)
+                foreach (var user in userRes.Entities)
                 {
-                    var workloadQuery = new QueryExpression("arl_interest")
+                    var userId = user.Id;
+
+                    if (!workloadByUser.ContainsKey(userId))
                     {
-                        Criteria = new FilterExpression
-                        {
-                            Conditions =
-                            {
-                                new ConditionExpression("arl_status", ConditionOperator.Equal, (int)InterestStatusOptions.В_работе),
-                                new ConditionExpression("ownerid", ConditionOperator.Equal, user.Id)
-                            }
-                        }
-                    };
+                        leastLoadedUser = user;
+                        minWorkload = 0;
+                        break;
+                    }
 
-                    int workload = wrapper.Service.RetrieveMultiple(workloadQuery).Entities.Count;
-
+                    var workload = workloadByUser[userId];
                     if (workload < minWorkload)
                     {
                         minWorkload = workload;
@@ -144,11 +160,16 @@ namespace AwaraIT.Training.Plugins.Interests
                     }
                 }
 
-                interest.OwnerId.Id = leastLoadedUser.Id;
+                if (minWorkload == 0) break;
+            }
+            
+            if (leastLoadedUser != null)
+            {
+                interest.OwnerId = new EntityReference("systemuser", leastLoadedUser.Id);
             }
             else
             {
-                throw new Exception("No Team Found");
+                throw new Exception("No suitable user found in any team.");
             }
         }
     }

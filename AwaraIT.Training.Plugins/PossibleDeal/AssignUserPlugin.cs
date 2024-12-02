@@ -32,47 +32,90 @@ namespace AwaraIT.Arlan.Plugins.PossibleDeal
             var deal = wrapper.TargetEntity.ToEntity<Deal>();
             try
             {
-                var teamId = TeamsService.FindTeamByRegion("Managers", deal.RegionId.Id, wrapper);
-                var userQuery = new QueryExpression("systemuser");
+                var teams = TeamsService.FindTeamsIdByRegionId("Managers", deal.RegionId.Id, wrapper);
 
-                userQuery.ColumnSet.AllColumns = true;
-                userQuery.Criteria.AddCondition("teammembership", "teamid", ConditionOperator.Equal, teamId);
-                userQuery.AddLink("teammembership", "systemuserid", "systemuserid");
-
-                var userRes = wrapper.Service.RetrieveMultiple(userQuery);
-
-                if (userRes.Entities.Count == 0)
-                {
-                    throw new Exception($"No User Found, TeamId:{teamId}");
-                }
-
-                Entity leastLoadedUser = userRes.Entities.First();
+                Entity leastLoadedUser = null;
                 int minWorkload = int.MaxValue;
 
-                foreach (Entity user in userRes.Entities)
+                foreach (var team in teams.Entities)
                 {
-                    var workloadQuery = new QueryExpression(Deal.EntityLogicalName)
+                    var teamId = team.Id;
+                    var dealQuery = new QueryExpression("arl_possibledeal")
                     {
+                        ColumnSet = new ColumnSet("arl_status", "ownerid"),
                         Criteria = new FilterExpression
                         {
-                            Conditions =
+                            Filters =
                             {
-                                new ConditionExpression("arl_status", ConditionOperator.Equal, (int)DealStatusOptions.В_работе),
-                                new ConditionExpression("ownerid", ConditionOperator.Equal, user.Id)
+                                new FilterExpression
+                                {
+                                    Conditions =
+                                    {
+                                        new ConditionExpression("arl_status", ConditionOperator.Equal, (int)DealStatusOptions.В_работе)
+                                    }
+                                },
+                                new FilterExpression
+                                {
+                                    Conditions =
+                                    {
+                                        new ConditionExpression("teammembership", "teamid", ConditionOperator.Equal, teamId)
+                                    }
+                                }
                             }
                         }
                     };
+                    dealQuery.AddLink("teammembership", "ownerid", "systemuserid");
+                    var dealRes = wrapper.Service.RetrieveMultiple(dealQuery);
 
-                    int workload = wrapper.Service.RetrieveMultiple(workloadQuery).Entities.Count;
+                    var workloadByUser = dealRes.Entities
+                    .GroupBy(i => i.GetAttributeValue<EntityReference>("ownerid").Id)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Count()
+                    );
 
-                    if (workload < minWorkload)
+                    var userQuery = new QueryExpression("systemuser")
                     {
-                        minWorkload = workload;
-                        leastLoadedUser = user;
+                        ColumnSet = new ColumnSet("systemuserid")
+                    };
+
+                    var teamLink = userQuery.AddLink("teammembership", "systemuserid", "systemuserid");
+                    teamLink.LinkCriteria.AddCondition("teamid", ConditionOperator.Equal, teamId);
+
+                    var userRes = wrapper.Service.RetrieveMultiple(userQuery);
+                    if (userRes.Entities.Count == 0)
+                    {
+                        throw new Exception($"No User Found in Team: {teamId}");
                     }
+
+                    foreach (var user in userRes.Entities)
+                    {
+                        var userId = user.Id;
+
+                        if (!workloadByUser.ContainsKey(userId))
+                        {
+                            leastLoadedUser = user;
+                            minWorkload = 0;
+                            break;
+                        }
+
+                        var workload = workloadByUser[userId];
+                        if (workload < minWorkload)
+                        {
+                            minWorkload = workload;
+                            leastLoadedUser = user;
+                        }
+                    }
+
+                    if (minWorkload == 0) break;
                 }
 
-                deal.OwnerId.Id = leastLoadedUser.Id;
+                if (leastLoadedUser == null)
+                {
+                    throw new Exception("No suitable user found for the deal assignment.");
+                }
+
+                deal.OwnerId = new EntityReference("systemuser", leastLoadedUser.Id);
             }
             catch (Exception ex)
             {
